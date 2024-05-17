@@ -63,10 +63,10 @@ def valor_de_la_compania_graph(df):
                 )
             ),
             margin=dict(
-                b=10,
+                b=0,
                 l=0,
-                r=10,
-                t=10,
+                r=0,
+                t=0,
             ),
             hovermode='x'
         )
@@ -170,10 +170,10 @@ def comparativa_valor_compania_graph(df):
                 )
             ),
             margin=dict(
-                b=10,
+                b=0,
                 l=0,
-                r=10,
-                t=10,
+                r=0,
+                t=0,
             ),
             hovermode='x'
         )
@@ -191,7 +191,7 @@ def comparativa_valor_compania_graph(df):
     return graph
 
 
-# KPIs
+# NOT USED Table - KPIs
 
 def kpi_unidades_vendidas_graph(df):
 
@@ -362,12 +362,11 @@ def promo_punto_de_venta_graph():
     # Concatenate the two melted DataFrames
     df_combined = pd.concat([df_melted_2027, df_melted_2028])
 
-    # Sorting the DataFrame by Año and Categoria
-    df_combined_sorted = df_combined.sort_values(by=['Pais', 'Categoria'])
+    # Update Categoria column for better labels
+    #df_combined['Categoria'] = df_combined['Categoria'].str.replace('_', ' ').str.replace('Tienda Tradicional', 'Tienda Tradicional').str.replace('Gran Superficie', 'Gran Superficie').str.replace('Hosteleria', 'Hostelería')
+    #df_combined['Categoria'] = df_combined['Categoria'].str.replace('2027', ' 2027').str.replace('2028', ' 2028')
 
 
-    # Define the color sequence
-    color_sequence = px.colors.qualitative.Plotly
 
     # Plotting using Plotly Express
     fig = px.bar(df_combined, 
@@ -377,12 +376,16 @@ def promo_punto_de_venta_graph():
                     facet_col='Pais',
                     #barmode='group',
                     category_orders={"Categoria": ["Tienda_Tradicional_2027", "Tienda_Tradicional_2028", "Gran_Superficie_2027", "Gran_Superficie_2028", "Hosteleria_2027", "Hosteleria_2028"]},
+                    #category_orders={"Categoria": ["Tienda Tradicional 2027", "Tienda Tradicional 2028", "Gran Superficie 2027", "Gran Superficie 2028", "Hostelería 2027", "Hostelería 2028"]},
+
                     #category_orders={"Categoria": ["Tienda_Tradicional_2027", "Gran_Superficie_2027", "Hosteleria_2027", "Tienda_Tradicional_2028", "Gran_Superficie_2028", "Hosteleria_2028"]},
 
                     labels={'Valor': '', 'Categoria': '', 'Año': 'Año'},
                     title='Promocion punto de venta por Canal. Drink2Go'
                     )
 
+    # Update annotations if necessary
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 
     graph = dcc.Graph(
         id='punto_de_venta_graph',
@@ -467,20 +470,111 @@ def impacto_celebridades():
     df_long = pd.melt(df, id_vars=['Celebridad'], var_name='Mercado', value_name='Impacto')
 
     # Plot
-    fig = px.bar(df_long, x='Celebridad', y='Impacto', color='Mercado',
-                title='Impacto de las celebridades por mercado',
-                labels={'Impacto': 'Puntos adicionales en Valor de Marca', 'Celebridad': 'Celebridad'},
-                barmode='group')
-
-    fig.update_layout(xaxis_title=None, yaxis_title=None)
-
+    fig = px.bar(
+        df_long, 
+        x='Celebridad', 
+        y='Impacto', 
+        color='Mercado',
+        #title='Impacto de las celebridades por mercado',
+        labels={'Impacto': 'Puntos adicionales en Valor de Marca', 'Celebridad': 'Celebridad'},
+        barmode='group')
+    
+    fig.update_layout(
+        xaxis_title=None, 
+        yaxis_title=None,
+        legend=dict(
+                title_text='',
+                orientation="h",
+                entrywidth=40, 
+                yanchor="bottom", 
+                y=1.00, 
+                xanchor="right", 
+                x=1.0,
+                font=dict(
+                    size=9
+                )
+            ),
+            margin=dict(
+                b=0,
+                l=0,
+                r=0,
+                t=0,
+            ),
+            #hovermode='x'
+        )
+    
     graph = dcc.Graph(
         id='impacto_celebridades',
         config = {'displayModeBar': False},
         figure=fig,
-        style={'width': '100%', 'height':'200px'},
+        style={'width': '100%', 'height':'300px'},
     )
     return graph
+
+# Precios de bebidas por Pais
+def plot_Bebida_Precio(Bebida_type):
+
+    data = {
+        "Pais": ["España", "España", "España", "Portugal", "Portugal", "Portugal", "Francia", "Francia", "Francia", "Italia", "Italia", "Italia", "Centro Europa", "Centro Europa", "Centro Europa", "Polonia", "Polonia", "Polonia", "Mexico", "Mexico", "Mexico"],
+        "Bebida": ["Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos"],
+        "2023": [12, 18, 22, 11, 17, 23, 13, 19, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "2024": [16, 24, 3, 16, 23, 31, 18, 26, 34, 16, 24, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "2025": [2, 28, 35, 2, 28, 36, 25, 3, 38, 24, 36, 45, 0, 0, 0, 0, 0, 0, 24, 36, 45],
+        "2026": [2, 28, 35, 2, 28, 36, 25, 3, 38, 3, 4, 56, 0, 0, 0, 24, 28, 35, 3, 4, 5],
+        "2027": [2, 28, 3, 2, 28, 3, 23, 28, 32, 24, 3, 34, 28, 34, 35, 26, 32, 38, 3, 29, 5],
+        "2028": [25, 28, 29, 24, 28, 29, 27, 28, 3, 28, 31, 34, 28, 32, 32, 27, 32, 35, 32, 33, 38],
+    }
+    
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Melt the DataFrame
+    df_melted = df.melt(id_vars=["Pais", "Bebida"], var_name="Año", value_name="Precio")
+
+    # Filter DataFrame for the specified Bebida type
+    df_filtered = df_melted[df_melted['Bebida'] == Bebida_type]
+
+    # Create the Line Chart
+    fig = px.line(df_filtered, x="Año", y="Precio", color="Pais", markers=True,
+                  title=f"Precio de bebidas por Pais - {Bebida_type}",
+                  labels={"Año": "Año", "Precio": "Precio Level", "Pais": "Pais"})
+
+
+    fig.update_layout(
+        xaxis_title=None, 
+        yaxis_title=None,
+        legend=dict(
+                title_text='',
+                orientation="h",
+                entrywidth=40, 
+                yanchor="bottom", 
+                y=1.00, 
+                xanchor="right", 
+                x=1.0,
+                font=dict(
+                    size=9
+                )
+            ),
+            margin=dict(
+                b=0,
+                l=0,
+                r=0,
+                t=100,
+            ),
+            #hovermode='x'
+        )
+
+
+    graph = dcc.Graph(
+        id='Precio de bebidas por Pais',
+        config = {'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height':'300px'},
+    )
+    return graph
+
+# Example usage:
+plot_Bebida_Precio("Refrescos")
 
 ### INICIO APP
 
@@ -529,7 +623,7 @@ app.layout = html.Div([
 
     # Inicio DIV 2 - ROW 1
     html.Div([
-        #Column 1
+        #Column 1 - Row 1
         html.Div([
             # Titulo
             html.Div("Valor de la Compañia", className="h6 text-center mt-4"),
@@ -542,10 +636,10 @@ app.layout = html.Div([
                 #html.Div('Valor de la Compañia', className="h6 mt-4"),
                 #valor_de_la_compania_table(df),
             ])
-        # Fin Column 1
+        # Fin Column 1 - Row 1
         ], className="col"),
 
-        # Column 2
+        # Column 2 - Row 1
         html.Div([
             # Titulo
             html.Div("Comparativa de Valor", className="h6 text-center mt-4"),
@@ -558,14 +652,14 @@ app.layout = html.Div([
                 #html.Div('Valor de la Compañia', className="h6 mt-4"),
                 #valor_de_la_compania_table(df),
             ])
-        # Fin Column 2
+        # Fin Column 2 - Row 1
         ], className="col"),
 
 
         # Column 3
          html.Div([
             # Titulo
-            html.Div("Comparativa de Valor", className="h6 text-center mt-4"),
+            html.Div("Impacto de las Celebredades por mercado", className="h6 text-center mt-4"),
             # Grafico
             html.Div([
                 impacto_celebridades(),
@@ -581,14 +675,14 @@ app.layout = html.Div([
         # Column 4
         
     # Fin Row 1    
-    ], className="row row-cols-1 row-cols-sm-2 row-cols-md-4"),
+    ], className="row row-cols-1 row-cols-sm-2 row-cols-md-3"),
 
     # INICIO ROW 2
     html.Div([
         #Column 1 - Row 2
         html.Div([
             # Titulo
-            html.Div("KPIs de Drink2Go", className="h6 text-center mt-4"),
+            #html.Div("KPIs de Drink2Go", className="h6 text-center mt-4"),
             # Grafico
             html.Div([
                 kpis_table(df),
@@ -649,7 +743,41 @@ app.layout = html.Div([
 
     # Fin Row 3    
     #], className="row row-cols-1 row-cols-sm-2 row-cols-md-2")
-    ], className="row")
+    ], className="row"),
+
+    # INICIO ROW 4
+    html.Div([
+        # Column 1 - Row 4
+        html.Div([
+            # Grafico
+            html.Div([
+                plot_Bebida_Precio("Refrescos"),
+            ]),       
+        ], className="col"),
+
+        # Column 2 - Row 4
+        html.Div([
+            # Grafico
+            html.Div([
+                plot_Bebida_Precio("Isotonicas"),
+            ]),       
+        ], className="col"),
+
+        # Column 3 - Row 4
+        html.Div([
+            # Grafico
+            html.Div([
+                plot_Bebida_Precio("Zumos"),
+            ]),       
+        ], className="col"),
+
+
+    # Fin Row 3    
+    ], className="row row-cols-1 row-cols-sm-2 row-cols-md-3")
+   
+
+
+
 # Fin de div principal
 ], className="container mt-4")
 
@@ -658,3 +786,5 @@ app.layout = html.Div([
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+
