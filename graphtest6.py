@@ -31,26 +31,19 @@ colors = {
 }
 
 # Create subplots
-fig = make_subplots(rows=1, cols=4, subplot_titles=("Total Capacidad Produccion", "Decision Unidades a Producir", "Total Units Produced", "% de Ocupacion Fabricas"))
+fig = make_subplots(rows=1, cols=4, subplot_titles=("Total Capacidad Produccion", "Decision Unidades a Producir", "Total Unid. Producidas", "% de Ocupacion Fabricas"))
 
-# Add traces for Total Capacidad Produccion
-for category in colors:
-    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Capacidad_Produccion"], name=category, marker_color=colors[category]), row=1, col=1)
 
-# Add traces for Decision Unidades a Producir
-for category in colors:
-    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Decision_Unidades_a_Producir"], name=category, marker_color=colors[category]), row=1, col=2)
-
-# Add traces for Total Units Produced
-for category in colors:
-    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Unid_Producidas"], name=category, marker_color=colors[category]), row=1, col=3)
-
-# Add traces for % de Ocupacion Fabricas
-for category in colors:
-    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_%_de_Ocupacion_Fabricas"], name=category, marker_color=colors[category]), row=1, col=4)
+# Add traces for each category
+for i, category in enumerate(colors):
+    show_legend = i == 0  # Show legend only for the first trace
+    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Capacidad_Produccion"], name=category, marker_color=colors[category], showlegend=False), row=1, col=1)
+    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Decision_Unidades_a_Producir"], name=category, marker_color=colors[category], showlegend=True), row=1, col=2)
+    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Unid_Producidas"], name=category, marker_color=colors[category], showlegend=False), row=1, col=3)
+    fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_%_de_Ocupacion_Fabricas"], name=category, marker_color=colors[category], showlegend=False), row=1, col=4)
 
 # Update layout
-fig.update_layout(title_text="Analisis del Area de Producci- Drink2Go", showlegend=False)
+fig.update_layout(title_text="Analisis del Area de Producción- Drink2Go", showlegend=True)
 
 # Show the plot
 fig.show()
