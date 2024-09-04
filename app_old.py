@@ -17,129 +17,117 @@ import dash_bootstrap_components as dbc
 
 
 # Load the Excel file
-df2 = pd.read_excel('datos2.xlsx', header=None)
-
-df = pd.read_excel('datos_final.xlsx', header=None)
+df = pd.read_excel('datos2.xlsx', header=None)
 
 
-### GERENCIA GENERAL ###
+# Graph 1 Valor de la compania GRAFICO 
+def valor_de_la_compania_graph(df):
 
-### 1 ###
-# KPIs Data Table
-def kpis_table(df):
-
-    kpis = df.iloc[78:94, 1].tolist()
-    ano_t = df.iloc[78:94, 2].tolist()
-    ano_t_1 = df.iloc[78:94, 3].tolist()
-    diferencia = df.iloc[78:94, 4].tolist()
-    porcentaje = df.iloc[78:94, 5].tolist()
+    nombres_empresas = df.iloc[3:9, 0].tolist()
+    ano_t = df.iloc[3:9, 1].tolist()
+    ano_t_1 = df.iloc[3:9, 2].tolist()
+    diferencia = df.iloc[3:9, 3].tolist()
+    porcentaje = df.iloc[3:9, 4].tolist()
 
     # Create DataFrame
     data = {
-        'KPI': kpis,
-        'Año 0': ano_t,
-        'Año -1': ano_t_1,
+        'Empresa': nombres_empresas,
+        'Año T': ano_t,
+        'Año T-1': ano_t_1,
         'Diferencia': diferencia,
-        'Variacion': porcentaje
+        'Porcentaje': porcentaje
     }
 
     result_df = pd.DataFrame(data)
 
-    # Define row indices you want to represent as percentages
-    percentage_rows_indices = [1, 4, 6, 7, 8, 10, 11, 15]
+    # Create the bar chart using Plotly Express
+    fig = px.bar(
+        result_df,
+        x='Empresa', 
+        y=['Año T', 'Año T-1'], 
+        barmode='group', 
+        labels={'x': 'Empresa', 'y': 'Valorrr'}, 
+        title='Valor de la Compañia'
+        )
+    fig.update_layout(
+            legend=dict(
+                title_text='',
+                orientation="h",
+                entrywidth=50, 
+                yanchor="bottom", 
+                y=1.00, 
+                xanchor="right", 
+                x=1.0,
+                font=dict(
+                    size=9
+                )
+            ),
+            margin=dict(
+                b=0,
+                l=0,
+                r=0,
+                t=130,
+            ),
+            hovermode='x'
+        )
+    fig.update_xaxes(title_text='')
+    fig.update_yaxes(title_text='Valor')
 
-    # Multiply the values in the specified rows by 100
-    result_df.loc[percentage_rows_indices, 'Año 0'] *= 100
-    result_df.loc[percentage_rows_indices, 'Año -1'] *= 100
+    # Create the graph outside the app layout
+    graph = dcc.Graph(
+        id='valor_compania',
+        config = {'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '400px'},  # Set graph width and height
+    )
 
+    return graph
 
-    # Convert specified columns to float
-    columns_to_convert = ['Año 0', 'Año -1', 'Diferencia', 'Variacion']
-    result_df[columns_to_convert] = result_df[columns_to_convert].astype(float)
+# Table 1 Valor de la compania TABLA
+def valor_de_la_compania_table(df):
 
-    # Format only the values in the specified rows as percentages
-    result_df.loc[percentage_rows_indices, 'Año 0'] = result_df.loc[percentage_rows_indices, 'Año 0'].apply(lambda x: "{:.2f}%".format(x))
+    nombres_empresas = df.iloc[3:9, 0].tolist()
+    ano_t = df.iloc[3:9, 1].tolist()
+    ano_t_1 = df.iloc[3:9, 2].tolist()
+    diferencia = df.iloc[3:9, 3].tolist()
+    porcentaje = df.iloc[3:9, 4].tolist()
 
-    # Format only the values in the specified rows as percentages
-    result_df.loc[percentage_rows_indices, 'Año -1'] = result_df.loc[percentage_rows_indices, 'Año -1'].apply(lambda x: "{:.2f}%".format(x))
+    # Create DataFrame
+    data = {
+        'Empresa': nombres_empresas,
+        'Año T': ano_t,
+        'Año T-1': ano_t_1,
+        'Diferencia': diferencia,
+        'Porcentaje': porcentaje
+    }
 
-    # Format as column as percentage
-    result_df['Variacion'] = result_df['Variacion'].apply(lambda x: "{:.2f}%".format(x * 100))  
-
-
-    # Add a new column 'Arrow' with arrow icons based on 'Diferencia' values
-    def create_arrow(row):
-        if row['Diferencia'] > 0:
-            return '&#9650;'  # Green arrow pointing up
-        elif row['Diferencia'] < 0:
-            return '&#9660;'  # Red arrow pointing down
-        else:
-            return ''
-
-    result_df['Arrow'] = result_df.apply(create_arrow, axis=1)
-
-
-
+    result_df = pd.DataFrame(data)
     data_table = dt.DataTable(
-                    id='kpis_datatable',
-                    columns=[
-                        {'name': col, 'id': col} if col != 'Arrow' else {'name': '', 'id': col, 'type': 'text', 'presentation': 'markdown'}
-                        for col in result_df.columns
-                    ],
+                    id='datatable',
+                    columns=[{'name': col, 'id': col} for col in result_df.columns],
                     data=result_df.to_dict('records'),
                     style_table={'overflowX': 'auto'},
-                    style_cell={
-                        'textAlign': 'right',
-                        'fontSize': 10,
-                        'font-family': 'Arial',
-                    }, 
-                        style_cell_conditional=[
-                            {'if': {'column_id': result_df.columns[0]}, 'textAlign': 'left'}
-                        ],
-
+                    style_cell={'fontSize': 10, 
+                                'font-family': 'Arial', 
+                                'text-align': 'center'
+                                },
                     style_header={'backgroundColor': 'lightgrey', 
                                   'fontWeight': 'bold'
-                                },
-                            style_data_conditional=[
-                                {
-                                    'if': {
-                                        'column_id': 'Diferencia',
-                                        'filter_query': '{Año 0} < {Año -1}'
-                                    },
-                                    'backgroundColor': 'red',
-                                    'color': 'white'
-                                },
-                                {
-                                    'if': {
-                                        'column_id': 'Diferencia',
-                                        'filter_query': '{Año 0} > {Año -1}'
-                                    },
-                                    'backgroundColor': 'green',
-                                    'color': 'white'
-                                },
-                                {
-                                    'if': {'column_id': 'Arrow', 'filter_query': '{Diferencia} > 0'},
-                                    'color': 'green',
-                                },
-                                {
-                                    'if': {'column_id': 'Arrow', 'filter_query': '{Diferencia} < 0'},
-                                    'color': 'red',
                                 }
-                            ]
-                    )
+                )
     return data_table
 
-### 2 ###
-# Comparativa de Valor de companias
+
+# Graph 2 Comparativa de Valor de companias
 def comparativa_valor_compania_graph(df):
 
-    nombres_empresas = df.iloc[13:19, 0].tolist()
-    a_2023 = df.iloc[13:19, 1].tolist()
-    a_2024 = df.iloc[13:19, 2].tolist()
-    a_2025 = df.iloc[13:19, 3].tolist()
-    a_2026 = df.iloc[13:19, 4].tolist()
-    a_2027 = df.iloc[13:19, 5].tolist()
-    a_2028 = df.iloc[13:19, 6].tolist()
+    nombres_empresas = df.iloc[12:17, 0].tolist()
+    a_2023 = df.iloc[12:17, 6].tolist()
+    a_2024 = df.iloc[12:17, 5].tolist()
+    a_2025 = df.iloc[12:17, 4].tolist()
+    a_2026 = df.iloc[12:17, 3].tolist()
+    a_2027 = df.iloc[12:17, 2].tolist()
+    a_2028 = df.iloc[12:17, 1].tolist()
     
     # Create DataFrame
     data = {
@@ -204,190 +192,6 @@ def comparativa_valor_compania_graph(df):
     return graph
 
 
-
-
-### 3 ###
-# Graph 2 Valor de la compania GRAFICO 
-def valor_de_la_compania_graph(df):
-
-    nombres_empresas = df.iloc[4:10, 1].tolist()
-    a_2028 = df.iloc[4:10, 2].tolist()
-    a_2027 = df.iloc[4:10, 3].tolist()
-    diferencia = df.iloc[4:10, 4].tolist()
-    porcentaje = df.iloc[4:10, 5].tolist()
-
-    # Create DataFrame
-    data = {
-        'Empresa': nombres_empresas,
-        '2028': a_2028,
-        '2027': a_2027,
-        'Diferencia': diferencia,
-        'Porcentaje': porcentaje
-    }
-
-    result_df = pd.DataFrame(data)
-
-    # Create the bar chart using Plotly Express
-    fig = px.bar(
-        result_df,
-        x='Empresa', 
-        y=['2028', '2027'], 
-        barmode='group', 
-        labels={'x': 'Empresa', 'y': 'Valorrr'}, 
-        title='Valor de la Compañia'
-        )
-    fig.update_layout(
-            legend=dict(
-                title_text='',
-                orientation="h",
-                entrywidth=50, 
-                yanchor="bottom", 
-                y=1.00, 
-                xanchor="right", 
-                x=1.0,
-                font=dict(
-                    size=9
-                )
-            ),
-            margin=dict(
-                b=0,
-                l=0,
-                r=0,
-                t=130,
-            ),
-            hovermode='x'
-        )
-    fig.update_xaxes(title_text='')
-    fig.update_yaxes(title_text='Valor')
-
-    # Create the graph outside the app layout
-    graph = dcc.Graph(
-        id='valor_compania',
-        config = {'displayModeBar': False},
-        figure=fig,
-        style={'width': '100%', 'height': '400px'},  # Set graph width and height
-    )
-
-    return graph
-
-
-
-### 4 ###
-# Analisis valor de la compañia grafico
-def analisis_valor_de_la_compania(df):
-
-    parametro = df.iloc[24:30, 0].tolist()
-    a_2023 = df.iloc[24:30, 1].tolist()
-    a_2024 = df.iloc[24:30, 2].tolist()
-    a_2025 = df.iloc[24:30, 3].tolist()
-    a_2026 = df.iloc[24:30, 4].tolist()
-    a_2027 = df.iloc[24:30, 5].tolist()
-    a_2028 = df.iloc[24:30, 6].tolist()
-
-
-    # Create DataFrame
-    data = {
-        'Parametro': parametro,
-        '2023': a_2023,
-        '2024': a_2024,
-        '2025': a_2025,
-        '2026': a_2026,
-        '2027': a_2027,
-        '2028': a_2028,
-        '2027': a_2027
-    }
-
-    result_df = pd.DataFrame(data)
-
-    df_melted = result_df.melt(id_vars=['Parametro'], var_name='Año', value_name='Ponderacion Media')
-
-
-    # Create the bar chart using Plotly Express
-    fig = px.bar(
-        df_melted,
-        x='Año', 
-        y='Ponderacion Media',
-        color='Parametro', 
-        barmode='group', 
-        labels={'Parametro': 'Parámetro', 'Ponderacion Media': 'Ponderación Media'},
-
-        #labels={'x': 'Parametro', 'y': 'Valorrr'}, 
-        title='Analisis Valor de la Compañia'
-        )
-    fig.update_layout(
-            legend=dict(
-                title_text='',
-                orientation="h",
-                entrywidth=50, 
-                yanchor="bottom", 
-                y=1.00, 
-                xanchor="right", 
-                x=1.0,
-                font=dict(
-                    size=9
-                )
-            ),
-            margin=dict(
-                b=0,
-                l=0,
-                r=0,
-                t=130,
-            ),
-            hovermode='x'
-        )
-    fig.update_xaxes(title_text='')
-    fig.update_yaxes(title_text='Valor')
-
-    # Create the graph outside the app layout
-    graph = dcc.Graph(
-        id='valor_compania',
-        config = {'displayModeBar': False},
-        figure=fig,
-        style={'width': '100%', 'height': '400px'},  # Set graph width and height
-    )
-
-    return graph
-
-
-
-"""
-# Table 1 Valor de la compania TABLA
-def valor_de_la_compania_table(df):
-
-    nombres_empresas = df.iloc[3:9, 0].tolist()
-    ano_t = df.iloc[3:9, 1].tolist()
-    ano_t_1 = df.iloc[3:9, 2].tolist()
-    diferencia = df.iloc[3:9, 3].tolist()
-    porcentaje = df.iloc[3:9, 4].tolist()
-
-    # Create DataFrame
-    data = {
-        'Empresa': nombres_empresas,
-        'Año T': ano_t,
-        'Año T-1': ano_t_1,
-        'Diferencia': diferencia,
-        'Porcentaje': porcentaje
-    }
-
-    result_df = pd.DataFrame(data)
-    data_table = dt.DataTable(
-                    id='datatable',
-                    columns=[{'name': col, 'id': col} for col in result_df.columns],
-                    data=result_df.to_dict('records'),
-                    style_table={'overflowX': 'auto'},
-                    style_cell={'fontSize': 10, 
-                                'font-family': 'Arial', 
-                                'text-align': 'center'
-                                },
-                    style_header={'backgroundColor': 'lightgrey', 
-                                  'fontWeight': 'bold'
-                                }
-                )
-    return data_table
-"""
-
-
-
 # NOT USED Table - KPIs
 
 def kpi_unidades_vendidas_graph(df):
@@ -429,6 +233,105 @@ def kpi_unidades_vendidas_graph(df):
 
     return graph
 
+#KPIs Data Table
+def kpis_table(df):
+
+    kpis = df.iloc[21:37, 0].tolist()
+    ano_t = df.iloc[21:37, 1].tolist()
+    ano_t_1 = df.iloc[21:37, 2].tolist()
+    diferencia = df.iloc[21:37, 3].tolist()
+    porcentaje = df.iloc[21:37, 4].tolist()
+
+    # Create DataFrame
+    data = {
+        'KPI': kpis,
+        'Año T': ano_t,
+        'Año T-1': ano_t_1,
+        'Diferencia': diferencia,
+        'Variacion': porcentaje
+    }
+
+    result_df = pd.DataFrame(data)
+
+    # Define row indices you want to represent as percentages
+    percentage_rows_indices = [1, 4, 6, 7, 8, 10, 11, 15]
+
+    # Multiply the values in the specified rows by 100
+    result_df.loc[percentage_rows_indices, 'Año T'] *= 100
+
+    # Convert specified columns to float
+    columns_to_convert = ['Año T', 'Año T-1', 'Diferencia', 'Variacion']
+    result_df[columns_to_convert] = result_df[columns_to_convert].astype(float)
+
+    # Format only the values in the specified rows as percentages
+    result_df.loc[percentage_rows_indices, 'Año T'] = result_df.loc[percentage_rows_indices, 'Año T'].apply(lambda x: "{:.2f}%".format(x))
+
+    # Format only the values in the specified rows as percentages
+    result_df.loc[percentage_rows_indices, 'Año T-1'] = result_df.loc[percentage_rows_indices, 'Año T-1'].apply(lambda x: "{:.2f}%".format(x))
+
+    # Format as column as percentage
+    result_df['Variacion'] = result_df['Variacion'].apply(lambda x: "{:.2f}%".format(x * 100))  
+
+
+    # Add a new column 'Arrow' with arrow icons based on 'Diferencia' values
+    def create_arrow(row):
+        if row['Diferencia'] > 0:
+            return '&#9650;'  # Green arrow pointing up
+        elif row['Diferencia'] < 0:
+            return '&#9660;'  # Red arrow pointing down
+        else:
+            return ''
+
+    result_df['Arrow'] = result_df.apply(create_arrow, axis=1)
+
+    data_table = dt.DataTable(
+                    id='kpis_datatable',
+                    columns=[
+                        {'name': col, 'id': col} if col != 'Arrow' else {'name': '', 'id': col, 'type': 'text', 'presentation': 'markdown'}
+                        for col in result_df.columns
+                    ],
+                    data=result_df.to_dict('records'),
+                    style_table={'overflowX': 'auto'},
+                    style_cell={
+                        'textAlign': 'right',
+                        'fontSize': 10,
+                        'font-family': 'Arial',
+                    }, 
+                        style_cell_conditional=[
+                            {'if': {'column_id': result_df.columns[0]}, 'textAlign': 'left'}
+                        ],
+
+                    style_header={'backgroundColor': 'lightgrey', 
+                                  'fontWeight': 'bold'
+                                },
+                            style_data_conditional=[
+                                {
+                                    'if': {
+                                        'column_id': 'Diferencia',
+                                        'filter_query': '{Año T} < {Año T-1}'
+                                    },
+                                    'backgroundColor': 'red',
+                                    'color': 'white'
+                                },
+                                {
+                                    'if': {
+                                        'column_id': 'Diferencia',
+                                        'filter_query': '{Año T} > {Año T-1}'
+                                    },
+                                    'backgroundColor': 'green',
+                                    'color': 'white'
+                                },
+                                {
+                                    'if': {'column_id': 'Arrow', 'filter_query': '{Diferencia} > 0'},
+                                    'color': 'green',
+                                },
+                                {
+                                    'if': {'column_id': 'Arrow', 'filter_query': '{Diferencia} < 0'},
+                                    'color': 'red',
+                                }
+                            ]
+                    )
+    return data_table
 
 
 # Graph Promocion Punto de venta por canal
@@ -1125,32 +1028,6 @@ app.layout = html.Div([
 
 
 
-
-
-    # NEW DIV ESCOGER GERENCIA
-    html.Div([
-        dcc.Dropdown(
-            id='app-dropdown',
-            options=[
-                {'label': 'Gerencia General', 'value':'gerencia_general'},
-                {'label': 'Gerencia Marketing y Ventas', 'value':'gerencia_marketing'},
-                {'label': 'Gerencia de Produccion', 'value':'gerencia_produccion'},
-                {'label': 'Gerencia Financera', 'value':'gerencia_financiera'}
-            ],
-            placeholder='Seleccionar Gerencia',
-            value='gerencia_general'
-
-        ),
-        html.Div(id="graph-container"),
-    ],
-    style={"width": "50%"},
-    ),
-
-    html.Div(id='graph-container2', style={"margin-top": "20px"}),
-
-
-
-
     # Inicio DIV 2 - ROW 1
     html.Hr(className="my-4"),
     html.Div([
@@ -1376,45 +1253,6 @@ app.layout = html.Div([
 
 # Fin de div principal
 ], className="container mt-4")
-
-
-##### CALLBACKS
-@app.callback(
-    Output('graph-container', 'children'),
-    [Input('app-dropdown', 'value')]
-)
-
-
-
-def update_graph(selected_value):
-    print(f"Dropdown selected: {selected_value}")  
-    if selected_value == 'gerencia_general':
-        
-
-
-        return html.Div([
-            html.Div([
-            html.Div(valor_de_la_compania_graph(df), className="col-md-6"),
-            html.Div(promo_punto_de_venta_graph(),className="col-md-6"),
-                ], className="row"),
-            
-            html.Div(analisis_valor_de_la_compania(df), className="col-md-12")
-            ])
-
-
-
-   
-    
-    elif selected_value == 'gerencia_marketing':
-        return comparativa_valor_compania_graph(df)
-    elif selected_value == 'gerencia_produccion':
-        return impacto_celebridades()
-    elif selected_value == 'gerencia_financiera':
-        return promo_punto_de_venta_graph()
-    else:
-        # If no value is selected, return an empty container
-        return html.Div("Seleccione un gráfico del menú desplegable.")
-
 
 
 #INICIO DE APP
