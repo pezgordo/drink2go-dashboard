@@ -349,89 +349,143 @@ def analisis_valor_de_la_compania(df):
     return graph
 
 
-
-"""
-# Table 1 Valor de la compania TABLA
-def valor_de_la_compania_table(df):
-
-    nombres_empresas = df.iloc[3:9, 0].tolist()
-    ano_t = df.iloc[3:9, 1].tolist()
-    ano_t_1 = df.iloc[3:9, 2].tolist()
-    diferencia = df.iloc[3:9, 3].tolist()
-    porcentaje = df.iloc[3:9, 4].tolist()
-
-    # Create DataFrame
-    data = {
-        'Empresa': nombres_empresas,
-        'Año T': ano_t,
-        'Año T-1': ano_t_1,
-        'Diferencia': diferencia,
-        'Porcentaje': porcentaje
-    }
-
-    result_df = pd.DataFrame(data)
-    data_table = dt.DataTable(
-                    id='datatable',
-                    columns=[{'name': col, 'id': col} for col in result_df.columns],
-                    data=result_df.to_dict('records'),
-                    style_table={'overflowX': 'auto'},
-                    style_cell={'fontSize': 10, 
-                                'font-family': 'Arial', 
-                                'text-align': 'center'
-                                },
-                    style_header={'backgroundColor': 'lightgrey', 
-                                  'fontWeight': 'bold'
-                                }
-                )
-    return data_table
-"""
+### GERENCIA DE MARKETING
 
 
-
-# NOT USED Table - KPIs
-
-def kpi_unidades_vendidas_graph(df):
-
-    titulo = df.iloc[21, 0]
-    ano_0 = df.iloc[21, 1]
-    ano_1 = df.iloc[21, 2]
-    diferencia = df.iloc[21, 3]
-    variacion = df.iloc[21, 4]
-
-        # Create DataFrame
-    data = {
-        'Titulo': [titulo],
-        'Año 0': [ano_0],
-        'Año -1': [ano_1],
-        'Diferencia': [diferencia],
-        'Variacion': [variacion],
-    }
-
-    result_df = pd.DataFrame(data)
-
-     # Create the bar chart using Plotly Express
-    fig = px.bar(
-        result_df,
-        x='Titulo', 
-        y=['Año 0', 'Año -1'], 
-        barmode='group', 
-        labels={'x': 'Empresa', 'y': 'Valorrr'}, 
-        #title='Valor de la Compañia'
-        )
+# 5 Nivel y Precios por compañia
+def plot_Bebida_Precio_por_empresa(Bebida_type, graph_id_suffix):
     
-        # Create the graph outside the app layout
-    graph = dcc.Graph(
-        id='kpis-graph',
-        config = {'displayModeBar': False},
-        figure=fig,
-        style={'width': '100%', 'height': '300px'},  # Set graph width and height
-    )
+    # New data based on the image provided (including companies)
+    data = {
+        "Pais": ["España", "España", "España", "Portugal", "Portugal", "Portugal", "Francia", "Francia", "Francia", 
+                 "Italia", "Italia", "Italia", "Centro Europa", "Centro Europa", "Centro Europa", 
+                 "Polonia", "Polonia", "Polonia", "Mexico", "Mexico", "Mexico"],
+        "Bebida": ["Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", 
+                   "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", 
+                   "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos"],
+        "GlobalBiz": [19, 28, 31, 19, 26, 31, 20, 28, 32, 22, 29, 36, 23, 3, 35, 22, 31, 36, 23, 31, 36],
+        "FreshMarket": [17, 26, 3, 17, 25, 3, 20, 29, 35, 17, 26, 3, 17, 26, 3, 18, 27, 33, 17, 26, 30],
+        "SparklingCo": [17, 24, 27, 17, 23, 27, 18, 27, 32, 17, 24, 27, 16, 24, 27, 16, 25, 3, 16, 24, 27],
+        "QualityMax": [20, 27, 32, 19, 27, 34, 21, 28, 33, 22, 27, 32, 25, 30, 35, 25, 30, 35, 23, 28, 33],
+        "Drink2Go": [25, 28, 29, 24, 28, 29, 27, 28, 3, 28, 31, 34, 28, 32, 32, 27, 32, 35, 32, 33, 38],
+    }
+    
+    # Create DataFrame
+    df = pd.DataFrame(data)
 
+    # Melt the DataFrame for Plotly
+    df_melted = df.melt(id_vars=["Pais", "Bebida"], var_name="Compañía", value_name="Precio")
+
+    # Filter DataFrame for the specified Bebida type
+    df_filtered = df_melted[df_melted['Bebida'] == Bebida_type]
+
+    # Create the Line Chart
+    fig = px.line(df_filtered, x="Compañía", y="Precio", color="Pais", markers=True,
+                  title=f"Precio por Pais y Compañía - {Bebida_type}",
+                  labels={"Compañía": "Compañía", "Precio": "Precio Level", "Pais": "Pais"})
+
+
+    fig.update_layout(
+        xaxis_title=None, 
+        yaxis_title=None,
+        legend=dict(
+                title_text='',
+                orientation="h",
+                entrywidth=40, 
+                yanchor="bottom", 
+                y=1.00, 
+                xanchor="right", 
+                x=1.0,
+                font=dict(
+                    size=9
+                )
+            ),
+            margin=dict(
+                b=0,
+                l=0,
+                r=0,
+                t=130,
+            ),
+            #hovermode='x'
+        )
+
+
+    # Generar el gráfico con un ID único utilizando el sufijo proporcionado
+    graph_id = f'Precio_de_bebidas_por_Pais_{graph_id_suffix}'
+    graph = dcc.Graph(
+        id=graph_id,
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height':'300px'},
+    )
+    return graph
+
+# 6 Nivel de Precio drink2go 5 años
+def plot_Bebida_Precio(Bebida_type, graph_id_suffix):
+
+    data = {
+        "Pais": ["España", "España", "España", "Portugal", "Portugal", "Portugal", "Francia", "Francia", "Francia", "Italia", "Italia", "Italia", "Centro Europa", "Centro Europa", "Centro Europa", "Polonia", "Polonia", "Polonia", "Mexico", "Mexico", "Mexico"],
+        "Bebida": ["Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos"],
+        "2023": [12, 18, 22, 11, 17, 23, 13, 19, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "2024": [16, 24, 3, 16, 23, 31, 18, 26, 34, 16, 24, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "2025": [2, 28, 35, 2, 28, 36, 25, 3, 38, 24, 36, 45, 0, 0, 0, 0, 0, 0, 24, 36, 45],
+        "2026": [2, 28, 35, 2, 28, 36, 25, 3, 38, 3, 4, 56, 0, 0, 0, 24, 28, 35, 3, 4, 5],
+        "2027": [2, 28, 3, 2, 28, 3, 23, 28, 32, 24, 3, 34, 28, 34, 35, 26, 32, 38, 3, 29, 5],
+        "2028": [25, 28, 29, 24, 28, 29, 27, 28, 3, 28, 31, 34, 28, 32, 32, 27, 32, 35, 32, 33, 38],
+    }
+    
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Melt the DataFrame
+    df_melted = df.melt(id_vars=["Pais", "Bebida"], var_name="Año", value_name="Precio")
+
+    # Filter DataFrame for the specified Bebida type
+    df_filtered = df_melted[df_melted['Bebida'] == Bebida_type]
+
+    # Create the Line Chart
+    fig = px.line(df_filtered, x="Año", y="Precio", color="Pais", markers=True,
+                  title=f"Precio de bebidas por Pais - {Bebida_type}",
+                  labels={"Año": "Año", "Precio": "Precio Level", "Pais": "Pais"})
+
+
+    fig.update_layout(
+        xaxis_title=None, 
+        yaxis_title=None,
+        legend=dict(
+                title_text='',
+                orientation="h",
+                entrywidth=40, 
+                yanchor="bottom", 
+                y=1.00, 
+                xanchor="right", 
+                x=1.0,
+                font=dict(
+                    size=9
+                )
+            ),
+            margin=dict(
+                b=0,
+                l=0,
+                r=0,
+                t=100,
+            ),
+            #hovermode='x'
+        )
+
+
+    # Generar el gráfico con un ID único utilizando el sufijo proporcionado
+    graph_id = f'Precio_de_bebidas_por_Pais_{graph_id_suffix}'
+    graph = dcc.Graph(
+        id=graph_id,
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height':'300px'},
+    )
     return graph
 
 
-
-# Graph Promocion Punto de venta por canal
+# 8 Graph Promocion Punto de venta por canal
 def promo_punto_de_venta_graph():
 
     data = {
@@ -514,6 +568,236 @@ def promo_punto_de_venta_graph():
         style={'width': '100%', 'height':'100%'},
     )
     return graph
+
+
+# 9 Unidades Vendidas por tipo de bebida y Año - FALTA
+
+#10 Incentivo ventas 5 años
+def plot_Incentivo_de_Ventas():
+    
+    # Data extracted from the table
+    data = {
+        "Producto": ["Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos"],
+        "Año": [2027, 2027, 2027, 2028, 2028, 2028],
+        "Ingresos": [10519803, 5061799, 4247517, 12402359, 5176663, 3938970],
+        "% Incentivos": [93, 84, 78, 105, 100, 109],
+        "Volumen Incentivos": [978342, 425191, 331306, 1302248, 517666, 429348]
+    }
+    
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Define colors for each product
+    product_colors = {
+        "Refrescos": "#636efb", 
+        "Isotonicas": "#f0563b",  
+        "Zumos": "#00cc96"       
+    }
+    
+    # Create subplots for the three metrics: Ingresos, % Incentivos, and Volumen Incentivos
+    fig = make_subplots(rows=1, cols=3, shared_xaxes=True, vertical_spacing=0.1,
+                        subplot_titles=("Ingresos", "% Incentivos", "Volumen Incentivos"))
+
+
+    # Plot for Ingresos (Bar chart with color depending on Producto)
+    fig.add_trace(
+        go.Bar(x=df['Producto'] + " " + df['Año'].astype(str), 
+               y=df['Ingresos'], 
+               name="Ingresos",
+               marker_color=[product_colors[prod] for prod in df['Producto']]),  # Apply color based on Producto
+        row=1, col=1
+    )
+
+    # Plot for % Incentivos (Bar chart with color depending on Producto)
+    fig.add_trace(
+        go.Bar(x=df['Producto'] + " " + df['Año'].astype(str), 
+               y=df['% Incentivos'], 
+               name="% Incentivos",
+               marker_color=[product_colors[prod] for prod in df['Producto']]),  # Apply color based on Producto
+        row=1, col=2
+    )
+
+    # Plot for Volumen Incentivos (Bar chart with color depending on Producto)
+    fig.add_trace(
+        go.Bar(x=df['Producto'] + " " + df['Año'].astype(str), 
+               y=df['Volumen Incentivos'], 
+               name="Volumen Incentivos",
+               marker_color=[product_colors[prod] for prod in df['Producto']]),  # Apply color based on Producto
+        row=1, col=3
+    )
+
+
+    # Update layout
+    fig.update_layout(
+        title_text="Incentivo de Ventas por Producto (Drink2Go)",
+        height=400,
+        showlegend=False,
+        margin=dict(l=50, r=50, b=50, t=100),
+        hovermode="x unified"
+    )
+
+    # Update axis labels
+    fig.update_xaxes(title_text="Producto y Año", row=1, col=1)
+    fig.update_yaxes(title_text="Ingresos", row=1, col=1)
+    fig.update_yaxes(title_text="% Incentivos", row=1, col=2)
+    fig.update_yaxes(title_text="Volumen Incentivos", row=1, col=3)
+
+    # Generate the graph without a unique ID
+    graph = dcc.Graph(
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height':'400px'},
+    )
+    return graph
+
+
+# 11.	Nivel de precios 5 años todas las compañías y drink2go
+
+def plot_Nivel_de_Precios():
+    
+    # Data from the table
+    data = {
+        "Pais": ["España", "España", "España", "Portugal", "Portugal", "Portugal", "Francia", "Francia", "Francia", 
+                 "Italia", "Italia", "Italia", "Centro Europa", "Centro Europa", "Centro Europa", "Polonia", "Polonia", 
+                 "Polonia", "Mexico", "Mexico", "Mexico"],
+        "Producto": ["Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", 
+                     "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", 
+                     "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos"],
+        "2027_GlobalBiz": [18, 28, 31, 18, 25, 32, 2, 28, 32, 22, 29, 36, 22, 3, 35, 22, 31, 36, 22, 31, 36],
+        "2027_FreshMarket": [16, 25, 28, 16, 24, 28, 19, 28, 33, 16, 25, 28, 16, 25, 28, 17, 26, 31, 16, 25, 28],
+        "2027_SparklingCo": [17, 24, 27, 17, 23, 27, 17, 25, 3, 17, 24, 27, 15, 24, 23, 16, 25, 3, 15, 24, 27],
+        "2027_QualityMax": [2, 27, 32, 19, 27, 34, 21, 28, 33, 22, 27, 32, 25, 3, 35, 25, 3, 35, 23, 28, 33],
+        "2027_Drink2Go": [2, 28, 3, 2, 28, 3, 23, 28, 32, 24, 3, 34, 28, 34, 35, 26, 32, 38, 3, 29, 5],
+        "2028_GlobalBiz": [19, 28, 31, 19, 26, 31, 2, 28, 32, 22, 29, 36, 23, 3, 35, 22, 31, 36, 23, 31, 36],
+        "2028_FreshMarket": [17, 26, 3, 17, 25, 3, 2, 29, 35, 17, 26, 3, 17, 26, 3, 18, 27, 33, 17, 26, 3],
+        "2028_SparklingCo": [17, 24, 27, 17, 23, 27, 18, 27, 32, 17, 24, 27, 16, 24, 27, 16, 25, 3, 16, 24, 27],
+        "2028_QualityMax": [2, 27, 32, 19, 27, 34, 21, 28, 33, 22, 27, 32, 25, 30, 35, 25, 30, 35, 23, 28, 33],
+        "2028_Drink2Go": [25, 28, 29, 24, 28, 29, 27, 28, 3, 28, 31, 34, 28, 32, 32, 27, 32, 35, 32, 33, 38]
+    }
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+
+    # Melt the DataFrame to convert it into long format for Plotly Express
+    df_melted = df.melt(id_vars=["Pais", "Producto"], var_name="Año_Compania", value_name="Precio")
+
+    # Split 'Año_Compania' into separate columns for Year and Company
+    df_melted[['Año', 'Compania']] = df_melted['Año_Compania'].str.split('_', expand=True)
+    df_melted.drop(columns=['Año_Compania'], inplace=True)
+
+    # Create the grouped bar chart using Plotly Express
+    fig = px.bar(df_melted, x="Producto", y="Precio", color="Compania", barmode="group",
+                 facet_col="Año", facet_row="Pais", title="Nivel de Precios por Compañía",
+                 labels={"Precio": "Precio", "Producto": "Producto", "Compania": "Compañía"})
+
+    fig.update_layout(
+        height=1000,
+        margin=dict(l=50, r=50, b=100, t=100),
+    )
+
+    # Return the graph as a dcc.Graph component
+    graph = dcc.Graph(
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '700px'},
+    )
+    
+    return graph
+
+
+
+
+### GERENCIA DE PRODUCCION
+
+
+# 12.	Nro de fabricas todas las compañías todos los años, evoluacion
+
+def plot_numero_de_fabricas():
+    # Data from the table (ignoring 'Allin One')
+    data = {
+        "Pais": ["España"] * 30 + ["Marruecos"] * 30 + ["Mexico"] * 30 + ["China"] * 30,
+        "Año": [2023, 2023, 2023, 2023, 2023, 2024, 2024, 2024, 2024, 2024,
+                2025, 2025, 2025, 2025, 2025, 2026, 2026, 2026, 2026, 2026,
+                2027, 2027, 2027, 2027, 2027, 2028, 2028, 2028, 2028, 2028] * 4,
+        "Compañía": ["GlobalBiz", "FreshMarket", "SparklingCo", "QualityMax", "Drink2Go"] * 6 * 4,
+        "Numero de Fabricas": [2, 2, 2, 2, 2, 2, 2, 2, 3, 2,
+                               2, 2, 2, 3, 2, 2, 2, 2, 3, 2,
+                               2, 2, 2, 3, 2, 2, 2, 2, 3, 2,   # España
+                               1, 1, 1, 1, 1, 1, 2, 2, 1, 1,
+                               2, 2, 2, 1, 2, 2, 2, 2, 1, 2,
+                               2, 2, 2, 1, 2, 2, 2, 2, 1, 2,   # Marruecos
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 1, 0, 0, 0, 1, 1, 0, 0, 0,
+                               1, 1, 1, 0, 0, 1, 1, 1, 0, 0,   # Mexico
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+                               0, 1, 0, 0, 0, 0, 1, 0, 0, 0]   # China
+    }
+
+    # Convert data into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Create the line chart using Plotly Express
+    fig = px.line(df, x="Año", y="Numero de Fabricas", color="Compañía", line_group="Compañía",
+                  facet_row="Pais", markers=True, title="Número de Fábricas por Compañía y País")
+
+    fig.update_layout(
+        height=800,
+        hovermode="x unified",
+        margin=dict(l=50, r=50, t=100, b=50)
+    )
+
+    # Return the graph component
+    return dcc.Graph(
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '700px'},
+    )
+
+
+
+# NOT USED Table - KPIs
+
+def kpi_unidades_vendidas_graph(df):
+
+    titulo = df.iloc[21, 0]
+    ano_0 = df.iloc[21, 1]
+    ano_1 = df.iloc[21, 2]
+    diferencia = df.iloc[21, 3]
+    variacion = df.iloc[21, 4]
+
+        # Create DataFrame
+    data = {
+        'Titulo': [titulo],
+        'Año 0': [ano_0],
+        'Año -1': [ano_1],
+        'Diferencia': [diferencia],
+        'Variacion': [variacion],
+    }
+
+    result_df = pd.DataFrame(data)
+
+     # Create the bar chart using Plotly Express
+    fig = px.bar(
+        result_df,
+        x='Titulo', 
+        y=['Año 0', 'Año -1'], 
+        barmode='group', 
+        labels={'x': 'Empresa', 'y': 'Valorrr'}, 
+        #title='Valor de la Compañia'
+        )
+    
+        # Create the graph outside the app layout
+    graph = dcc.Graph(
+        id='kpis-graph',
+        config = {'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '300px'},  # Set graph width and height
+    )
+
+    return graph
+
+
 
 
 # 3 Graphs for Incentivo de ventas por producto Drink2Go
@@ -633,69 +917,17 @@ def impacto_celebridades():
     )
     return graph
 
-# Precios de bebidas por Pais
-def plot_Bebida_Precio(Bebida_type, graph_id_suffix):
-
-    data = {
-        "Pais": ["España", "España", "España", "Portugal", "Portugal", "Portugal", "Francia", "Francia", "Francia", "Italia", "Italia", "Italia", "Centro Europa", "Centro Europa", "Centro Europa", "Polonia", "Polonia", "Polonia", "Mexico", "Mexico", "Mexico"],
-        "Bebida": ["Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos", "Refrescos", "Isotonicas", "Zumos"],
-        "2023": [12, 18, 22, 11, 17, 23, 13, 19, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "2024": [16, 24, 3, 16, 23, 31, 18, 26, 34, 16, 24, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "2025": [2, 28, 35, 2, 28, 36, 25, 3, 38, 24, 36, 45, 0, 0, 0, 0, 0, 0, 24, 36, 45],
-        "2026": [2, 28, 35, 2, 28, 36, 25, 3, 38, 3, 4, 56, 0, 0, 0, 24, 28, 35, 3, 4, 5],
-        "2027": [2, 28, 3, 2, 28, 3, 23, 28, 32, 24, 3, 34, 28, 34, 35, 26, 32, 38, 3, 29, 5],
-        "2028": [25, 28, 29, 24, 28, 29, 27, 28, 3, 28, 31, 34, 28, 32, 32, 27, 32, 35, 32, 33, 38],
-    }
-    
-    # Create DataFrame
-    df = pd.DataFrame(data)
-
-    # Melt the DataFrame
-    df_melted = df.melt(id_vars=["Pais", "Bebida"], var_name="Año", value_name="Precio")
-
-    # Filter DataFrame for the specified Bebida type
-    df_filtered = df_melted[df_melted['Bebida'] == Bebida_type]
-
-    # Create the Line Chart
-    fig = px.line(df_filtered, x="Año", y="Precio", color="Pais", markers=True,
-                  title=f"Precio de bebidas por Pais - {Bebida_type}",
-                  labels={"Año": "Año", "Precio": "Precio Level", "Pais": "Pais"})
 
 
-    fig.update_layout(
-        xaxis_title=None, 
-        yaxis_title=None,
-        legend=dict(
-                title_text='',
-                orientation="h",
-                entrywidth=40, 
-                yanchor="bottom", 
-                y=1.00, 
-                xanchor="right", 
-                x=1.0,
-                font=dict(
-                    size=9
-                )
-            ),
-            margin=dict(
-                b=0,
-                l=0,
-                r=0,
-                t=100,
-            ),
-            #hovermode='x'
-        )
+####
 
 
-    # Generar el gráfico con un ID único utilizando el sufijo proporcionado
-    graph_id = f'Precio_de_bebidas_por_Pais_{graph_id_suffix}'
-    graph = dcc.Graph(
-        id=graph_id,
-        config={'displayModeBar': False},
-        figure=fig,
-        style={'width': '100%', 'height':'300px'},
-    )
-    return graph
+
+
+
+
+#####
+
 
 
 # 4 Graph Analisis Area de Produccion
@@ -1138,12 +1370,12 @@ app.layout = html.Div([
                 {'label': 'Gerencia Financera', 'value':'gerencia_financiera'}
             ],
             placeholder='Seleccionar Gerencia',
-            value='gerencia_general'
+            value='gerencia_marketing'
 
         ),
         html.Div(id="graph-container"),
     ],
-    style={"width": "50%"},
+    style={"width": "100%"},
     ),
 
     html.Div(id='graph-container2', style={"margin-top": "20px"}),
@@ -1163,28 +1395,28 @@ app.layout = html.Div([
                 valor_de_la_compania_graph(df),
 
             ]),
-            html.Div([
+            #html.Div([
                 #html.Div('Valor de la Compañia', className="h6 mt-4"),
                 #valor_de_la_compania_table(df),
-            ])
+            #])
         # Fin Column 1 - Row 1
         ], className="col"),
 
         # Column 2 - Row 1
-        html.Div([
+        #html.Div([
             # Titulo
             #html.Div("Comparativa de Valor", className="h6 text-center mt-4"),
             # Grafico
-            html.Div([
-                comparativa_valor_compania_graph(df),
+         #   html.Div([
+          #      comparativa_valor_compania_graph(df),
 
-            ]),
-            html.Div([
+           # ]),
+           # html.Div([
                 #html.Div('Valor de la Compañia', className="h6 mt-4"),
                 #valor_de_la_compania_table(df),
-            ])
+           # ])
         # Fin Column 2 - Row 1
-        ], className="col"),
+        #], className="col"),
 
 
         # Column 3
@@ -1207,6 +1439,7 @@ app.layout = html.Div([
     
     # Fin Row 1    
     ], className="row row-cols-1 row-cols-sm-2 row-cols-md-3"),
+    
 
     # INICIO ROW 2
     html.Hr(className="my-4"),
@@ -1393,22 +1626,112 @@ def update_graph(selected_value):
 
 
         return html.Div([
-            html.Div([
-            html.Div(valor_de_la_compania_graph(df), className="col-md-6"),
-            html.Div(promo_punto_de_venta_graph(),className="col-md-6"),
-                ], className="row"),
-            
-            html.Div(analisis_valor_de_la_compania(df), className="col-md-12")
-            ])
+                    html.Div([
+                        html.Div(kpis_table(df), className="col-6"),
+                        html.Div(comparativa_valor_compania_graph(df), className="col-6"),
+                        
+                        ], className="row"),
+                    html.Div([
+                        html.Div(valor_de_la_compania_graph(df),className="col-6"),
+                        html.Div(analisis_valor_de_la_compania(df), className="col-6")
+                        ], className="row"),
+                ])
 
 
 
    
     
     elif selected_value == 'gerencia_marketing':
-        return comparativa_valor_compania_graph(df)
+        return html.Div([
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        # Column 1 - Row 4
+                        html.Div([
+                            # Grafico
+                            html.Div([
+                                plot_Bebida_Precio("Refrescos", '1'),
+                            ]),       
+                        ], className="col"),
+
+                        # Column 2 - Row 4
+                        html.Div([
+                            # Grafico
+                            html.Div([
+                                plot_Bebida_Precio("Isotonicas", '2'),
+                            ]),       
+                        ], className="col"),
+
+                        # Column 3 - Row 4
+                        html.Div([
+                            # Grafico
+                            html.Div([
+                                plot_Bebida_Precio("Zumos", '3'),
+                            ]),       
+                        ], className="col"),
+                    # Fin Row 4    
+                    ], className="row row-cols-1 row-cols-sm-2 row-cols-md-3"),
+                
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        # Column 1 - Row 4
+                        html.Div([
+                            # Grafico
+                            html.Div([
+                                plot_Bebida_Precio_por_empresa("Refrescos", '1'),
+                            ]),       
+                        ], className="col"),
+
+                        # Column 2 - Row 4
+                        html.Div([
+                            # Grafico
+                            html.Div([
+                                plot_Bebida_Precio_por_empresa("Isotonicas", '2'),
+                            ]),       
+                        ], className="col"),
+
+                        # Column 3 - Row 4
+                        html.Div([
+                            # Grafico
+                            html.Div([
+                                plot_Bebida_Precio_por_empresa("Zumos", '3'),
+                            ]),       
+                        ], className="col"),
+                    # Fin Row 4    
+                    ], className="row row-cols-1 row-cols-sm-2 row-cols-md-3"),
+
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        html.Div([
+                            promo_punto_de_venta_graph(),
+                        ], className="col"),
+                    ]),
+
+                    html.Div([
+                        html.Div([
+                            plot_Incentivo_de_Ventas(),
+                        ], className="col"),
+
+                    ]), 
+
+                    html.Div([
+                        html.Div([
+                            plot_Nivel_de_Precios(),
+                        ], className="col"),
+
+                    ]), 
+                
+                ])
+
+
+    
+
+
+
+
     elif selected_value == 'gerencia_produccion':
-        return impacto_celebridades()
+        return plot_numero_de_fabricas()
+    
+
     elif selected_value == 'gerencia_financiera':
         return promo_punto_de_venta_graph()
     else:
