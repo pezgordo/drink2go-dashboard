@@ -318,7 +318,7 @@ def analisis_valor_de_la_compania(df):
             legend=dict(
                 title_text='',
                 orientation="h",
-                entrywidth=50, 
+                entrywidth=100, 
                 yanchor="bottom", 
                 y=1.00, 
                 xanchor="right", 
@@ -386,6 +386,10 @@ def plot_Bebida_Precio_por_empresa(Bebida_type, graph_id_suffix):
 
 
     fig.update_layout(
+        title={
+            'font': {'size': 12},
+            'pad': {'b': 10}
+            },
         xaxis_title=None, 
         yaxis_title=None,
         legend=dict(
@@ -397,14 +401,14 @@ def plot_Bebida_Precio_por_empresa(Bebida_type, graph_id_suffix):
                 xanchor="right", 
                 x=1.0,
                 font=dict(
-                    size=9
+                    size=8
                 )
             ),
             margin=dict(
                 b=0,
                 l=0,
                 r=0,
-                t=130,
+                t=160,
             ),
             #hovermode='x'
         )
@@ -416,7 +420,7 @@ def plot_Bebida_Precio_por_empresa(Bebida_type, graph_id_suffix):
         id=graph_id,
         config={'displayModeBar': False},
         figure=fig,
-        style={'width': '100%', 'height':'300px'},
+        style={'width': '100%', 'height':'400px'},
     )
     return graph
 
@@ -445,11 +449,15 @@ def plot_Bebida_Precio(Bebida_type, graph_id_suffix):
 
     # Create the Line Chart
     fig = px.line(df_filtered, x="Año", y="Precio", color="Pais", markers=True,
-                  title=f"Precio de bebidas por Pais - {Bebida_type}",
+                  title=f"Precio de bebidas por Pais Drink2Go - {Bebida_type}",
                   labels={"Año": "Año", "Precio": "Precio Level", "Pais": "Pais"})
 
 
     fig.update_layout(
+        title={
+            'font': {'size': 12},
+            'pad': {'b': 10}
+            },
         xaxis_title=None, 
         yaxis_title=None,
         legend=dict(
@@ -461,14 +469,14 @@ def plot_Bebida_Precio(Bebida_type, graph_id_suffix):
                 xanchor="right", 
                 x=1.0,
                 font=dict(
-                    size=9
+                    size=8
                 )
             ),
             margin=dict(
                 b=0,
                 l=0,
                 r=0,
-                t=100,
+                t=120,
             ),
             #hovermode='x'
         )
@@ -699,7 +707,7 @@ def plot_Nivel_de_Precios():
     graph = dcc.Graph(
         config={'displayModeBar': False},
         figure=fig,
-        style={'width': '100%', 'height': '700px'},
+        style={'width': '100%', 'height': '1000px'},
     )
     
     return graph
@@ -751,10 +759,402 @@ def plot_numero_de_fabricas():
     return dcc.Graph(
         config={'displayModeBar': False},
         figure=fig,
-        style={'width': '100%', 'height': '700px'},
+        style={'width': '100%', 'height': '800px'},
+    )
+
+# 13 Graph Analisis Area de Produccion
+def analisis_produccion():
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+    import pandas as pd
+
+    # Create a dictionary to hold the data
+    data = {
+        "Year": [2027, 2028],
+        "Refrescos_Total_Capacidad_Produccion": [6440000, 6608000],
+        "Isotonicas_Total_Capacidad_Produccion": [2392000, 2454400],
+        "Zumos_Total_Capacidad_Produccion": [1679000, 1722800],
+        "Refrescos_Decision_Unidades_a_Producir": [7123800, 7251300],
+        "Isotonicas_Decision_Unidades_a_Producir": [3920510, 4116535],
+        "Zumos_Decision_Unidades_a_Producir": [2670550, 2804078],
+        "Refrescos_Total_Unid_Producidas": [6193504, 6494808],
+        "Isotonicas_Total_Unid_Producidas": [2392000, 2454400],
+        "Zumos_Total_Unid_Producidas": [1679000, 1722800],
+        "Refrescos_%_de_Ocupacion_Fabricas": [962, 983],
+        "Isotonicas_%_de_Ocupacion_Fabricas": [1000, 1000],
+        "Zumos_%_de_Ocupacion_Fabricas": [1000, 1000],
+        # Add more data columns similarly
+    }
+
+    # Convert the dictionary into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Define custom colors for each category
+    colors = {
+        "Refrescos": "#636efb",
+        "Isotonicas": "#ef563b",
+        "Zumos": "#05cc96"
+    }
+
+    # Create subplots
+    fig = make_subplots(rows=1, cols=4, subplot_titles=("Total Capacidad Produccion", "Decision Unidades a Producir", "Total Unid. Producidas", "% de Ocupacion Fabricas"))
+
+
+    # Add traces for each category
+    for i, category in enumerate(colors):
+        show_legend = i == 0  # Show legend only for the first trace
+        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Capacidad_Produccion"], name=category, marker_color=colors[category], showlegend=False), row=1, col=1)
+        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Decision_Unidades_a_Producir"], name=category, marker_color=colors[category], showlegend=True), row=1, col=2)
+        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Unid_Producidas"], name=category, marker_color=colors[category], showlegend=False), row=1, col=3)
+        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_%_de_Ocupacion_Fabricas"], name=category, marker_color=colors[category], showlegend=False), row=1, col=4)
+
+    # Update layout
+    fig.update_layout(
+            title={
+        'font': {'size': 18},
+    },
+        title_text="Analisis del Area de Producción- Drink2Go", 
+        showlegend=True,
+        legend=dict(
+                title_text='',
+                orientation="v",
+                entrywidth=40, 
+                yanchor="bottom", 
+                y=1.00, 
+                xanchor="left", 
+                x=1.0,
+                font=dict(
+                    size=9
+                )
+            ),
+            margin=dict(
+                b=0,
+                l=0,
+                r=0,
+                t=100,
+            ),
+        )
+
+
+
+
+    # Create the graph outside the app layout
+    graph = dcc.Graph(
+        id='analisis_produccion',
+        config = {'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '300px'},  # Set graph width and height
+    )
+
+    return graph
+
+
+
+def analisis_produccion_2():
+    # Data for the analysis
+    data = {
+        "Year": [2027, 2028],
+        "Refrescos_Total_Capacidad_Produccion": [6440000, 6608000],
+        "Isotonicas_Total_Capacidad_Produccion": [2392000, 2454400],
+        "Zumos_Total_Capacidad_Produccion": [1679000, 1722800],
+        "Refrescos_Decision_Unidades_a_Producir": [7123800, 7251300],
+        "Isotonicas_Decision_Unidades_a_Producir": [3920510, 4116535],
+        "Zumos_Decision_Unidades_a_Producir": [2670550, 2804078],
+        "Refrescos_Total_Unid_Producidas": [6193504, 6494808],
+        "Isotonicas_Total_Unid_Producidas": [2392000, 2454400],
+        "Zumos_Total_Unid_Producidas": [1679000, 1722800],
+        "Refrescos_%_de_Ocupacion_Fabricas": [962, 983],
+        "Isotonicas_%_de_Ocupacion_Fabricas": [1000, 1000],
+        "Zumos_%_de_Ocupacion_Fabricas": [1000, 1000],
+    }
+
+    # Convert the dictionary into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Define custom colors for each category
+    colors = {
+        "Refrescos": "#636efb",
+        "Isotonicas": "#ef563b",
+        "Zumos": "#05cc96"
+    }
+
+    # Create subplots for each category and metric
+    fig = make_subplots(
+        rows=1, cols=4, 
+        subplot_titles=("Total Capacidad Produccion", 
+                        "Decision Unidades a Producir", 
+                        "Total Unid. Producidas", 
+                        "% de Ocupacion Fabricas")
+    )
+
+    # Add traces for each category and metric
+    for i, category in enumerate(colors):
+        fig.add_trace(go.Bar(x=df["Year"], 
+                             y=df[f"{category}_Total_Capacidad_Produccion"], 
+                             name=category, 
+                             marker_color=colors[category]), 
+                      row=1, col=1)
+        fig.add_trace(go.Bar(x=df["Year"], 
+                             y=df[f"{category}_Decision_Unidades_a_Producir"], 
+                             name=category, 
+                             marker_color=colors[category], 
+                             showlegend=False), 
+                      row=1, col=2)
+        fig.add_trace(go.Bar(x=df["Year"], 
+                             y=df[f"{category}_Total_Unid_Producidas"], 
+                             name=category, 
+                             marker_color=colors[category], 
+                             showlegend=False), 
+                      row=1, col=3)
+        fig.add_trace(go.Bar(x=df["Year"], 
+                             y=df[f"{category}_%_de_Ocupacion_Fabricas"], 
+                             name=category, 
+                             marker_color=colors[category], 
+                             showlegend=False), 
+                      row=1, col=4)
+
+    # Update the layout of the figure
+    fig.update_layout(
+        title_text="Análisis del Área de Producción - Drink2Go", 
+        showlegend=True,
+        legend=dict(
+            orientation="h",  # Horizontal legend
+            yanchor="bottom", 
+            y=-0.2, 
+            xanchor="center", 
+            x=0.5,
+            font=dict(size=10)
+        ),
+        margin=dict(
+            b=50, l=20, r=20, t=80  # Adjust margins for better display
+        ),
+        height=500,  # Height of the graph
+    )
+
+    # Create the graph
+    graph = dcc.Graph(
+        id='analisis_produccion',
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '500px'},
+    )
+
+    return graph
+
+
+#14.	Gasto en Marca Por producto
+
+def gasto_en_marca():
+    # Data for brand spending by product
+    data = {
+        "Year": [2023, 2024, 2025, 2026, 2027, 2028],
+        "Refrescos": [332640, 489952, 974081, 1024081, 1141436, 1448298],
+        "Isotonicas": [175560, 284592, 601072, 661072, 762428, 1368725],
+        "Zumos": [145530, 223608, 462079, 522079, 638668, 1299978]
+    }
+
+    # Convert the data into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Melt the DataFrame to long format for Plotly
+    df_melted = df.melt(id_vars=["Year"], var_name="Producto", value_name="Gasto")
+
+    # Create a line chart using Plotly Express
+    fig = px.line(df_melted, x="Year", y="Gasto", color="Producto", 
+                  markers=True, title="Gasto en Marca por Producto - Drink2Go")
+
+    # Update layout
+    fig.update_layout(
+        height=500,
+        hovermode="x unified",
+        margin=dict(l=50, r=50, t=80, b=50),
+        yaxis_title="Gasto (USD)",
+        xaxis_title="Año"
+    )
+
+    # Return the graph component
+    return dcc.Graph(
+        id='gasto_en_marca',
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '500px'}
     )
 
 
+
+#15 Inventario
+
+def inventario_producto_acabado():
+    # Data for product inventory by trimesters
+    data = {
+        "Year_Trimester": [
+            "2027 - 1er Trim", "2027 - 2do Trim", "2027 - 3er Trim", "2027 - 4to Trim",
+            "2028 - 1er Trim", "2028 - 2do Trim", "2028 - 3er Trim", "2028 - 4to Trim"
+        ],
+        "Refrescos": [527121, 568007, 1030954, 830692, 666954, 694733, 1169400, 941786],
+        "Isotonicas": [126236, 437024, 699960, 173136, 125308, 444935, 733292, 195526],
+        "Zumos": [140625, 146649, 169904, 124214, 107215, 124644, 159305, 125090]
+    }
+
+    # Convert the data into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Melt the DataFrame to long format for Plotly
+    df_melted = df.melt(id_vars=["Year_Trimester"], var_name="Producto", value_name="Inventario")
+
+    # Create a grouped bar chart using Plotly Express
+    fig = px.bar(df_melted, x="Year_Trimester", y="Inventario", color="Producto", 
+                 barmode="group", title="Inventario de Producto Acabado por Trimestres - Drink2Go")
+
+    # Update layout
+    fig.update_layout(
+        height=500,
+        hovermode="x unified",
+        margin=dict(l=50, r=50, t=80, b=50),
+        yaxis_title="Inventario (Unidades)",
+        xaxis_title="Trimestre",
+        xaxis_tickangle=-45
+    )
+
+    # Return the graph component
+    return dcc.Graph(
+        id='inventario_producto_acabado',
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '500px'}
+    )
+
+
+
+#16 Ingresos total 
+
+def ingresos_total_compania():
+    # Data for total company revenue by year
+    data = {
+        "Year": [2023, 2024, 2025, 2026, 2027, 2028],
+        "Ingresos": [7976033, 10787901, 16607629, 19958018, 19829118, 21517990]
+    }
+
+    # Convert the data into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Create a line chart or bar chart using Plotly Express
+    fig = px.line(df, x="Year", y="Ingresos", 
+                  markers=True, title="Total Ingresos Compañia - Drink2Go")
+
+    # Update layout
+    fig.update_layout(
+        height=500,
+        hovermode="x unified",
+        margin=dict(l=50, r=50, t=80, b=50),
+        yaxis_title="Ingresos (USD)",
+        xaxis_title="Año"
+    )
+
+    # Return the graph component
+    return dcc.Graph(
+        id='ingresos_total_compania',
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '500px'}
+    )
+
+# 17 Rentabilidad sobre patrimonio
+
+def rentabilidad_sobre_patrimonio():
+    # Data for Rentabilidad sobre Patrimonio Neto by year
+    data = {
+        "Year": [2023, 2024, 2025, 2026, 2027, 2028],
+        "Rentabilidad": [1, 10, 10, 14, 5, -8]
+    }
+
+    # Convert the data into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Create a line chart or bar chart using Plotly Express
+    fig = px.line(df, x="Year", y="Rentabilidad", 
+                  markers=True, title="Rentabilidad sobre Patrimonio Neto - Drink2Go")
+
+    # Update layout
+    fig.update_layout(
+        height=500,
+        hovermode="x unified",
+        margin=dict(l=50, r=50, t=80, b=50),
+        yaxis_title="Rentabilidad (%)",
+        xaxis_title="Año"
+    )
+
+    # Return the graph component
+    return dcc.Graph(
+        id='rentabilidad_sobre_patrimonio',
+        config={'displayModeBar': False},
+        figure=fig,
+        style={'width': '100%', 'height': '500px'}
+    )
+
+
+
+
+
+# 18 Cuenta resultados table
+
+def cuenta_resultados_datatable():
+    # Data from the table
+    data = {
+        "Cuenta": [
+            "Ingresos Totales", "Costes de Produccion", "Costes Logisticos", "Margen Bruto", "Margen sobre Ingresos", 
+            "Gastos de Marketing", "Gastos de Personal", "Gastos Innovacion", "Gastos Generales", "Total Gastos Explotacion", 
+            "Resultado Bruto", "Gastos de Depreciacion", "Gastos Financieros", "Resultado Neto"
+        ],
+        2023: [7976033, 2178934, 530811, 5266288, "66%", 1223530, 1042270, 1392445, 760343, 4418589, 847700, 427500, 235449, 184751],
+        2024: [10787901, 1946781, 612307, 8228813, "76%", 1827967, 1337912, 971720, 990911, 5128510, 3100303, 462000, 420838, 2217466],
+        2025: [16607629, 2273503, 889558, 13444568, "81%", 4112474, 2035508, 2039144, 1834687, 10021813, 3422755, 626000, 614189, 2182566],
+        2026: [19958018, 2110921, 1094731, 16752366, "84%", 4603239, 2696273, 2713324, 1836222, 11849057, 4903309, 695000, 508400, 3699908],
+        2027: [19829118, 2342845, 1442761, 16043512, "81%", 5568433, 2826239, 3460937, 1784621, 13640230, 2403283, 764000, 395015, 1244268],
+        2028: [21517990, 2330088, 1509609, 17678294, "82%", 8201000, 3519586, 4209891, 1936619, 17867096, -188802, 833000, 457221, -1479023]
+    }
+
+    # Convert the data into a DataFrame
+    df = pd.DataFrame(data)
+
+    # Create the DataTable
+    data_table = dt.DataTable(
+        id='cuenta_resultados_datatable',
+        columns=[
+            {'name': str(col), 'id': str(col)} for col in df.columns  # Convert columns to string
+        ],
+        data=df.to_dict('records'),
+        style_table={'overflowX': 'auto'},
+        style_cell={
+            'textAlign': 'right',
+            'fontSize': 10,
+            'font-family': 'Arial',
+        }, 
+        style_cell_conditional=[
+            {'if': {'column_id': 'Cuenta'}, 'textAlign': 'left'}
+        ],
+        style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
+        style_data_conditional=[
+            {
+                'if': {
+                    'column_id': 'Resultado Neto',
+                    'filter_query': '{Resultado Neto} < 0'  # Highlight negative values in red
+                },
+                'backgroundColor': 'red',
+                'color': 'white'
+            },
+            {
+                'if': {
+                    'column_id': 'Resultado Neto',
+                    'filter_query': '{Resultado Neto} > 0'  # Highlight positive values in green
+                },
+                'backgroundColor': 'green',
+                'color': 'white'
+            }
+        ]
+    )
+
+    return data_table
 
 # NOT USED Table - KPIs
 
@@ -930,88 +1330,6 @@ def impacto_celebridades():
 
 
 
-# 4 Graph Analisis Area de Produccion
-def analisis_produccion():
-    import plotly.graph_objects as go
-    from plotly.subplots import make_subplots
-    import pandas as pd
-
-    # Create a dictionary to hold the data
-    data = {
-        "Year": [2027, 2028],
-        "Refrescos_Total_Capacidad_Produccion": [6440000, 6608000],
-        "Isotonicas_Total_Capacidad_Produccion": [2392000, 2454400],
-        "Zumos_Total_Capacidad_Produccion": [1679000, 1722800],
-        "Refrescos_Decision_Unidades_a_Producir": [7123800, 7251300],
-        "Isotonicas_Decision_Unidades_a_Producir": [3920510, 4116535],
-        "Zumos_Decision_Unidades_a_Producir": [2670550, 2804078],
-        "Refrescos_Total_Unid_Producidas": [6193504, 6494808],
-        "Isotonicas_Total_Unid_Producidas": [2392000, 2454400],
-        "Zumos_Total_Unid_Producidas": [1679000, 1722800],
-        "Refrescos_%_de_Ocupacion_Fabricas": [962, 983],
-        "Isotonicas_%_de_Ocupacion_Fabricas": [1000, 1000],
-        "Zumos_%_de_Ocupacion_Fabricas": [1000, 1000],
-        # Add more data columns similarly
-    }
-
-    # Convert the dictionary into a DataFrame
-    df = pd.DataFrame(data)
-
-    # Define custom colors for each category
-    colors = {
-        "Refrescos": "#636efb",
-        "Isotonicas": "#ef563b",
-        "Zumos": "#05cc96"
-    }
-
-    # Create subplots
-    fig = make_subplots(rows=1, cols=4, subplot_titles=("Total Capacidad Produccion", "Decision Unidades a Producir", "Total Unid. Producidas", "% de Ocupacion Fabricas"))
-
-
-    # Add traces for each category
-    for i, category in enumerate(colors):
-        show_legend = i == 0  # Show legend only for the first trace
-        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Capacidad_Produccion"], name=category, marker_color=colors[category], showlegend=False), row=1, col=1)
-        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Decision_Unidades_a_Producir"], name=category, marker_color=colors[category], showlegend=True), row=1, col=2)
-        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_Total_Unid_Producidas"], name=category, marker_color=colors[category], showlegend=False), row=1, col=3)
-        fig.add_trace(go.Bar(x=df["Year"], y=df[f"{category}_%_de_Ocupacion_Fabricas"], name=category, marker_color=colors[category], showlegend=False), row=1, col=4)
-
-    # Update layout
-    fig.update_layout(
-        title_text="Analisis del Area de Producción- Drink2Go", 
-        showlegend=True,
-        legend=dict(
-                title_text='',
-                orientation="v",
-                entrywidth=40, 
-                yanchor="bottom", 
-                y=1.00, 
-                xanchor="left", 
-                x=1.0,
-                font=dict(
-                    size=9
-                )
-            ),
-            margin=dict(
-                b=0,
-                l=0,
-                r=0,
-                t=100,
-            ),
-        )
-
-
-
-
-    # Create the graph outside the app layout
-    graph = dcc.Graph(
-        id='analisis_produccion',
-        config = {'displayModeBar': False},
-        figure=fig,
-        style={'width': '100%', 'height': '300px'},  # Set graph width and height
-    )
-
-    return graph
 
 
 # 3 Graph Analisis de Ventas e Inventario
@@ -1380,8 +1698,9 @@ app.layout = html.Div([
 
     html.Div(id='graph-container2', style={"margin-top": "20px"}),
 
-
-
+# Fin de div principal
+], className="container mt-4")
+"""
 
     # Inicio DIV 2 - ROW 1
     html.Hr(className="my-4"),
@@ -1607,9 +1926,8 @@ app.layout = html.Div([
     #Fin Row 8
     ], className="row")
 
-# Fin de div principal
-], className="container mt-4")
 
+"""
 
 ##### CALLBACKS
 @app.callback(
@@ -1623,24 +1941,19 @@ def update_graph(selected_value):
     print(f"Dropdown selected: {selected_value}")  
     if selected_value == 'gerencia_general':
         
-
-
         return html.Div([
                     html.Div([
-                        html.Div(kpis_table(df), className="col-6"),
-                        html.Div(comparativa_valor_compania_graph(df), className="col-6"),
+                        html.Div(kpis_table(df), className="col-10"),
+                        html.Div(comparativa_valor_compania_graph(df), className="col-10"),
                         
-                        ], className="row"),
+                        ], className="row justify-content-center"),
                     html.Div([
-                        html.Div(valor_de_la_compania_graph(df),className="col-6"),
-                        html.Div(analisis_valor_de_la_compania(df), className="col-6")
-                        ], className="row"),
+                        html.Div(valor_de_la_compania_graph(df),className="col-10"),
+                        html.Div(analisis_valor_de_la_compania(df), className="col-10")
+                        ], className="row justify-content-center"),
                 ])
 
 
-
-   
-    
     elif selected_value == 'gerencia_marketing':
         return html.Div([
                     html.Hr(className="my-4"),
@@ -1700,40 +2013,66 @@ def update_graph(selected_value):
                     ], className="row row-cols-1 row-cols-sm-2 row-cols-md-3"),
 
                     html.Hr(className="my-4"),
-                    html.Div([
+                    html.Div([                
                         html.Div([
                             promo_punto_de_venta_graph(),
                         ], className="col"),
                     ]),
-
+                    html.Hr(className="my-4"),
                     html.Div([
                         html.Div([
                             plot_Incentivo_de_Ventas(),
                         ], className="col"),
-
                     ]), 
-
+                    html.Hr(className="my-4"),
                     html.Div([
                         html.Div([
                             plot_Nivel_de_Precios(),
                         ], className="col"),
-
                     ]), 
-                
                 ])
 
-
-    
-
-
-
-
     elif selected_value == 'gerencia_produccion':
-        return plot_numero_de_fabricas()
+        return html.Div([
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        plot_numero_de_fabricas(),
+                    ], className="col"),
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        analisis_produccion(),
+                    ], className="col"),
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        gasto_en_marca(),
+                    ], className="col"),
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        inventario_producto_acabado(),
+                    ], className="col"),
+        ])
     
 
     elif selected_value == 'gerencia_financiera':
-        return promo_punto_de_venta_graph()
+        return html.Div([
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        kpis_table(df),
+                    ], className="col"),
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        ingresos_total_compania(),
+                    ], className="col"),
+                    html.Hr(className="my-4"),
+                    html.Div([
+                        rentabilidad_sobre_patrimonio(),
+                    ], className="col"),
+                    html.Hr(className="my-4"),
+                    html.H4("Cuenta de Resultados de la Compania Drink2Go"),
+                    html.Div([
+                        cuenta_resultados_datatable(),
+                    ], className="col"),
+        ])
     else:
         # If no value is selected, return an empty container
         return html.Div("Seleccione un gráfico del menú desplegable.")
